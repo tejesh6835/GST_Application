@@ -1,9 +1,11 @@
 package com.app.boot.gst.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.*;
 
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -12,5 +14,9 @@ import java.util.List;
 @Builder
 @Entity
 public class SubTotal {
-    private List<LineItemsResponse> lineItems;
+    @Id
+    private Long subTotalId;
+    @OneToOne
+    @JoinColumn(name = "lineItemsResponseId")
+    private LineItemsResponse lineItems;
 }

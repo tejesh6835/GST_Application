@@ -1,6 +1,7 @@
 package com.app.boot.gst.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
 
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.Date;
 @Builder
 @Entity
 public class InvoiceDetails {
+    @Id
     private String invoiceNumber;
     private Date invoiceDate;
     private Date dueDate;
