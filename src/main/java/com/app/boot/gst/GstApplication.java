@@ -10,5 +10,6 @@ public class GstApplication {
 		SpringApplication.run(GstApplication.class, args);
 	}
 
+
 }
 
