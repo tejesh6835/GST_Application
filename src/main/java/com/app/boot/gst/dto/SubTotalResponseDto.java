@@ -1,19 +1,13 @@
-package com.app.boot.gst.entities;
+package com.app.boot.gst.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder
-@Entity
-public class SubTotal {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long subTotalId;
+public class SubTotalResponseDto {
     private Double taxableValue;
     private Double cgstAmount;
     private Double sgstAmount;

@@ -1,6 +1,8 @@
 package com.app.boot.gst.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
@@ -12,12 +14,13 @@ import lombok.*;
 @Entity
 public class LineItems {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lineItemsId;
     private String description;
     private String hsnOrSac;
     private Integer quantity;
     private Double unitPrice;
-    private Double gstRate;
+    private Double rate;
     private Double discount;
-    private Double gstDiscount;
+    private Double gst;
 }
