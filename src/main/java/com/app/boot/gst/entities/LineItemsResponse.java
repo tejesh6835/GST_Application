@@ -19,5 +19,6 @@ public class LineItemsResponse {
     private Double taxableValue;
     private Double cgstAmount;
     private Double sgstAmount;
+    private Double igstAmount;
     private Double lineItemTotal;
 }

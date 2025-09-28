@@ -23,4 +23,5 @@ public class LineItems {
     private Double rate;
     private Double discount;
     private Double gst;
+    private Boolean isIgstIncluded;
 }

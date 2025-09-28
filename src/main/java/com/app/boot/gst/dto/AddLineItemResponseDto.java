@@ -11,6 +11,7 @@ public class AddLineItemResponseDto {
     private Double taxableValue;
     private Double cgstAmount;
     private Double sgstAmount;
+    private Double igstAmount;
     private Double lineItemTotal;
     private SubTotalResponseDto subTotalResponseDto;
 }

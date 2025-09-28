@@ -1,6 +1,5 @@
 package com.app.boot.gst.servicesimpl;
 
-
 import com.app.boot.gst.dto.AddLineItemResponseDto;
 import com.app.boot.gst.dto.SubTotalResponseDto;
 import com.app.boot.gst.entities.LineItems;
@@ -22,20 +21,14 @@ public class LineItemsServiceImpl implements LineItemsService {
     private final LineItemsRepo lineItemsRepo;
     private final LineItemsResponseRepo lineItemsResponseRepo;
 
-    List<LineItems> lineItemsList = new ArrayList<>();
-    List<LineItemsResponse> lineItemsResponseList = new ArrayList<>();
-//
-//    @Override
-//    public void saveLineItems(List<LineItems> lineItems) {
-//          lineItemsRepo.saveAll(lineItems);
-////        List<LineItemsResponse> calculateLineItemTotals = calculateLineItemTotals(lineItems);
-//    }
+    private static List<LineItems> lineItemsList = new ArrayList<>();
+    private static List<LineItemsResponse> lineItemsResponseList = new ArrayList<>();
 
     @Override
     public AddLineItemResponseDto addLineItem(LineItems lineItem) {
 
         lineItemsList.add(lineItem);
-        LineItemsResponse lineItemsResponse = calculateLineItemTotals(lineItem);
+        LineItemsResponse lineItemsResponse = Boolean.TRUE.equals(lineItem.getIsIgstIncluded()) ? calculateLineItemTotalsIgst(lineItem) : calculateLineItemTotals(lineItem);
 
         lineItemsResponseList.add(lineItemsResponse);
 
@@ -45,8 +38,28 @@ public class LineItemsServiceImpl implements LineItemsService {
                 .taxableValue(lineItemsResponse.getTaxableValue())
                 .cgstAmount(lineItemsResponse.getCgstAmount())
                 .sgstAmount(lineItemsResponse.getSgstAmount())
+                .igstAmount(lineItemsResponse.getIgstAmount())
                 .lineItemTotal(lineItemsResponse.getLineItemTotal())
                 .subTotalResponseDto(buildSubTotalResponseDto(subTotal))
+                .build();
+    }
+
+    private LineItemsResponse calculateLineItemTotalsIgst(LineItems lineItem) {
+        double price = lineItem.getQuantity() * lineItem.getRate();
+        double taxbleValue = price - (price * lineItem.getDiscount() / 100.0);
+
+        double igstCal = lineItem.getGst();
+
+        double igstAmount = price * (igstCal / 100.0);
+
+        Double lineItemTotal = taxbleValue + igstAmount;
+
+        return LineItemsResponse.builder()
+                .taxableValue(taxbleValue)
+                .cgstAmount(0.0)
+                .sgstAmount(0.0)
+                .igstAmount(igstAmount)
+                .lineItemTotal(lineItemTotal)
                 .build();
     }
 
@@ -55,6 +68,7 @@ public class LineItemsServiceImpl implements LineItemsService {
                 .taxableValue(subTotal.getTaxableValue())
                 .cgstAmount(subTotal.getCgstAmount())
                 .sgstAmount(subTotal.getSgstAmount())
+                .igstAmount(subTotal.getIgstAmount())
                 .lineItemTotal(subTotal.getLineItemTotal())
                 .build();
     }
@@ -64,30 +78,33 @@ public class LineItemsServiceImpl implements LineItemsService {
         Double subTaxableValue = 0.0;
         Double subCgstAmount = 0.0;
         Double subSgstAmount = 0.0;
+        Double subIgstAmount = 0.0;
 
         for (LineItemsResponse item : lineItemsResponse) {
             subTotal += item.getLineItemTotal();
             subTaxableValue += item.getTaxableValue();
             subCgstAmount += item.getCgstAmount();
             subSgstAmount += item.getSgstAmount();
+            subIgstAmount += item.getIgstAmount();
         }
         return SubTotal.builder()
                 .taxableValue(subTaxableValue)
                 .cgstAmount(subCgstAmount)
                 .sgstAmount(subSgstAmount)
+                .igstAmount(subIgstAmount)
                 .lineItemTotal(subTotal)
                 .build();
     }
 
     private LineItemsResponse calculateLineItemTotals(LineItems lineItem) {
 
-        double price = lineItem.getQuantity() * lineItem.getRate(); //200
-        double taxbleValue = price - (price * lineItem.getDiscount() / 100.0); //180
+        double price = lineItem.getQuantity() * lineItem.getRate();
+        double taxbleValue = price - (price * lineItem.getDiscount() / 100.0);
 
-        double gstCal = lineItem.getGst() / 2.0; //5
+        double gstCal = lineItem.getGst() / 2.0;
 
-        double cgstAmount = lineItem.getQuantity() * lineItem.getRate() * (gstCal / 100.0);  //10
-        double sgstAmount = lineItem.getQuantity() * lineItem.getRate() * (gstCal / 100.0); //10
+        double cgstAmount = price * (gstCal / 100.0);
+        double sgstAmount = price * (gstCal / 100.0);
 
         Double lineItemTotal = taxbleValue + cgstAmount + sgstAmount;
 
@@ -95,6 +112,7 @@ public class LineItemsServiceImpl implements LineItemsService {
                     .taxableValue(taxbleValue)
                     .cgstAmount(cgstAmount)
                     .sgstAmount(sgstAmount)
+                    .igstAmount(0.0)
                     .lineItemTotal(lineItemTotal)
                     .build();
     }
